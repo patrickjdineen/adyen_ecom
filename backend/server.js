@@ -23,45 +23,30 @@ const client = new Client({
 //adyen route
 app.post('/api/session', async (req, res) => {
 	try {
-        const {
-            amount,
-            returnUrl,
-        } = req.body
-        const idempotencyKey = createId();
+    const {
+        amount,
+        returnUrl,
+    } = req.body;
 
-        const checkoutSessionData = {
-            merchantAccount: process.env.MERCHANT_ACCOUNT,
-            amount: amount,
-            returnUrl: returnUrl,
-            reference: createId()
-          };
-           
-        // Send the request
+    const checkoutSessionData = {
+        merchantAccount: process.env.MERCHANT_ACCOUNT,
+        amount: amount,
+        returnUrl: returnUrl,
+        reference: createId()
+      };
         
-        const response =  await checkoutApi.PaymentsApi.sessions(checkoutSessionData, { idempotencyKey: idempotencyKey });
-        response.clientKey = process.env.CLIENT_KEY
-        response.idempotencyKey = idempotencyKey
-        console.log(response)
-        res.status(201).json(response)
+    // Send the request
+    const response =  await checkoutApi.PaymentsApi.sessions(checkoutSessionData);
+    response.clientKey = process.env.CLIENT_KEY
+    console.log(response)
+    res.status(201).json(response)
 
     } catch (error) {
         console.error(error)
     }
 });
 
-app.post(`/sessions/:id`, async (req, res) => {
-  try {
-    const id = req.params.id;
-    const sessionResult = req.query.sessionResult;
 
-    const response = await checkoutApi.PaymentsApi.getResultOfPaymentSession(id, sessionResult);
-    console.log(response)
-    res.status(201).json(response)
-  } catch (error) {
-    console.error(error)
-  }
-  
-});
 //route for filling product data
 app.get('/api/products', (req, res) => {
   res.json(products);
